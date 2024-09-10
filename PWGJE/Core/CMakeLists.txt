@@ -14,6 +14,7 @@ o2physics_add_library(PWGJECore
                SOURCES  FastJetUtilities.cxx
                         JetFinder.cxx
                         JetBkgSubUtils.cxx
+                        JetEseContainer.cxx
                PUBLIC_LINK_LIBRARIES O2Physics::AnalysisCore FastJet::FastJet FastJet::Contrib)
 
 o2physics_target_root_dictionary(PWGJECore
@@ -23,5 +24,6 @@ o2physics_target_root_dictionary(PWGJECore
                       JetTaggingUtilities.h
                       JetBkgSubUtils.h
                       JetDerivedDataUtilities.h
+                      JetEseContainer.h
               LINKDEF PWGJECoreLinkDef.h)
 endif()

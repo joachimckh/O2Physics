@@ -22,4 +22,6 @@
 #pragma link C++ namespace fastjetutilities + ;
 #pragma link C++ namespace jettaggingutilities + ;
 
+#pragma link C++ class JetEseContainer + ;
+
 #endif // PWGJE_CORE_PWGJECORELINKDEF_H_
