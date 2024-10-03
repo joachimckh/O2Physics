@@ -46,7 +46,7 @@ using JColwESE = soa::Join<aod::JCollisions, aod::CentFT0Cs, aod::QVecFT0Cs, aod
 struct JetSpectraEseTask {
 
   HistogramRegistry registry{"registry",
-                             {{"h_collisions", "event status;event status;entries", {HistType::kTH1F, {{4, 0.0, 4.0}}}},
+                             {{"h_collisions", "event status;event status;entries", {HistType::kTH1F, {{10, 0.0, 10.0}}}},
                               {"h_jet_pt", "jet pT;#it{p}_{T,jet} (GeV/#it{c});entries", {HistType::kTH1F, {{200, 0., 200.}}}},
                               {"h_jet_pt_bkgsub", "jet pT background sub;#it{p}_{T,jet} (GeV/#it{c});entries", {HistType::kTH1F, {{200, 0., 200.}}}},
                               {"h_jet_eta", "jet #eta;#eta_{jet};entries", {HistType::kTH1F, {{100, -1.0, 1.0}}}},
@@ -58,8 +58,8 @@ struct JetSpectraEseTask {
                              }};
 
   Configurable<float> jetPtMin{"jetPtMin", 5.0, "minimum jet pT cut"};
-  Configurable<float> jetR{"jetR", 0.4, "jet resolution parameter"};
-  Configurable<float> jetEtaMax{"jetEtaMax",0.7,"maximal jet eta cut"};
+  Configurable<float> jetR{"jetR", 0.2, "jet resolution parameter"};
+  Configurable<std::vector<float>> CentRange{"CentRange", {30,50}, "centrality region of interest"};
 
   Configurable<std::string> eventSelections{"eventSelections", "sel8", "choose event selection"};
   Configurable<std::string> trackSelections{"trackSelections", "globalTracks", "set track selections"};
@@ -78,7 +78,7 @@ struct JetSpectraEseTask {
     fJet->Init(1);
   }
 
-  Filter jetCuts = aod::jet::pt > jetPtMin&& aod::jet::r == nround(jetR.node() * 100.0f) && aod::jet::eta < jetEtaMax;
+  Filter jetCuts = aod::jet::pt > jetPtMin&& aod::jet::r == nround(jetR.node() * 100.0f) && nabs(aod::jet::eta) < 0.9f - jetR;
 
 
   using JColPI= soa::Join<JetCollisions, aod::JCollisionPIs>::iterator; //join rho table here before pushing
@@ -90,14 +90,17 @@ struct JetSpectraEseTask {
                              JetTracks const& tracks)
   {
     auto originalCollision = collision.collision_as<soa::Join<aod::Collisions, aod::CentFT0Cs, aod::QVecFT0Cs, aod::QPercentileFT0Cs, aod::FEseCols, aod::BkgChargedRhos>>();
+    registry.fill(HIST("h_collisions"), 0.5);
     if (originalCollision.fESECOL()[0]!=1) return;
-
+    registry.fill(HIST("h_collisions"), 1.5);
+    if (originalCollision.centFT0C() < CentRange->at(0) || originalCollision.centFT0C() > CentRange->at(1)) return;
+    registry.fill(HIST("h_collisions"), 2.5);
     float vPsi2 = FFitWeights::EventPlane(originalCollision, 2);
     auto qPerc = originalCollision.qPERCFT0C();
-    registry.fill(HIST("h_collisions"), 0.5);
     if (!jetderiveddatautilities::selectCollision(collision, eventSelection)) {
       return;
     }
+    registry.fill(HIST("h_collisions"), 3.5);
     double leadingTrackpT = 0.0;
     for (auto& track : tracks) {
       if (track.pt() > 5.0) {
@@ -109,7 +112,7 @@ struct JetSpectraEseTask {
     if (leadingTrackpT == 0.0)
       return;
 
-    registry.fill(HIST("h_collisions"), 1.5);
+    registry.fill(HIST("h_collisions"), 4.5);
     registry.fill(HIST("h_rho"), originalCollision.rho());
     for (auto const& jet : jets) {
       float jetpT_bkgsub = jet.pt() - (originalCollision.rho() * jet.area());
@@ -125,7 +128,7 @@ struct JetSpectraEseTask {
         continue;
       fJet->Fill(jetpT_bkgsub,qPerc[0], jet.phi(), vPsi2);
     }
-    registry.fill(HIST("h_collisions"), 2.5);
+    registry.fill(HIST("h_collisions"), 5.5);
   }
   PROCESS_SWITCH(JetSpectraEseTask, processESEDataCharged, "process ese collisions", true);
 };
