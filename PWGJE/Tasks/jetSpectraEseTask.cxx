@@ -83,7 +83,13 @@ struct JetSpectraEseTask {
   int eventSelection = -1;
   int trackSelection = -1;
 
-  enum class DetID { FT0C, FT0A, FT0M, FV0A, TPCpos, TPCneg, TPCall};
+  enum class DetID { FT0C,
+                     FT0A,
+                     FT0M,
+                     FV0A,
+                     TPCpos,
+                     TPCneg,
+                     TPCall };
 
   void init(o2::framework::InitContext&)
   {
@@ -103,12 +109,12 @@ struct JetSpectraEseTask {
         registry.add("hRho", ";#rho;entries", {HistType::kTH1F, {{100, 0, 200.}}});
         registry.add("hJetArea", ";area_{jet};entries", {HistType::kTH1F, {{100, 0, 10.}}});
         registry.add("hdPhi", "#Delta#phi;entries;", {HistType::kTH1F, {{dPhiAxis}}});
-        registry.add("hCentJetPtdPhiq2", "", {HistType::kTHnSparseF, {{100,0,100},{jetPtAxis}, {dPhiAxis}, {eseAxis}}});
+        registry.add("hCentJetPtdPhiq2", "", {HistType::kTHnSparseF, {{100, 0, 100}, {jetPtAxis}, {dPhiAxis}, {eseAxis}}});
         registry.add("hPsi2FT0C", ";Centrality; #Psi_{2}", {HistType::kTH2F, {{100, 0, 100}, {150, -2.5, 2.5}}});
-        registry.addClone("hPsi2FT0C","hPsi2FT0A");
-        registry.addClone("hPsi2FT0C","hPsi2FV0A");
-        registry.addClone("hPsi2FT0C","hPsi2TPCpos");
-        registry.addClone("hPsi2FT0C","hPsi2TPCneg");
+        registry.addClone("hPsi2FT0C", "hPsi2FT0A");
+        registry.addClone("hPsi2FT0C", "hPsi2FV0A");
+        registry.addClone("hPsi2FT0C", "hPsi2TPCpos");
+        registry.addClone("hPsi2FT0C", "hPsi2TPCneg");
 
         registry.add("hCosPsi2AmC", ";Centrality;cos(2(#Psi_{2}^{A}-#Psi_{2}^{B}));#it{q}_{2}", {HistType::kTH3F, {{100, 0, 100}, {cosAxis}, {eseAxis}}});
         registry.addClone("hCosPsi2AmC", "hCosPsi2AmB");
@@ -118,10 +124,10 @@ struct JetSpectraEseTask {
         registry.addClone("hQvecUncorV2", "hQvecRectrV2");
         registry.addClone("hQvecUncorV2", "hQvecTwistV2");
         registry.addClone("hQvecUncorV2", "hQvecFinalV2");
-        
-        registry.addClone("hPsi2FT0C","hEPUncorV2");
-        registry.addClone("hPsi2FT0C","hEPRectrV2");
-        registry.addClone("hPsi2FT0C","hEPTwistV2");
+
+        registry.addClone("hPsi2FT0C", "hEPUncorV2");
+        registry.addClone("hPsi2FT0C", "hEPRectrV2");
+        registry.addClone("hPsi2FT0C", "hEPTwistV2");
         break;
       case 1:
         LOGF(info, "JetSpectraEseTask::init() - using MC");
@@ -143,11 +149,11 @@ struct JetSpectraEseTask {
       case 2:
         LOGF(info, "JetSpectraEseTask::init() - using Occupancy processing");
         registry.add("hEventCounterOcc", "event status;event status;entries", {HistType::kTH1F, {{10, 0.0, 10.0}}});
-        registry.add("hTrackPt", "track pT;#it{p}_{T,track} (GeV/#it{c});entries", {HistType::kTHnSparseF, {{100,0,100}, {100,0,100},{eseAxis}, {occAxis}}});
-        registry.add("hTrackEta", "track #eta;#eta_{track};entries", {HistType::kTH3F, {{100,0,100},{100, -1.0, 1.0},{occAxis}}});
-        registry.add("hTrackPhi", "track #phi;#phi_{track};entries", {HistType::kTH3F, {{100,0,100},{80, -1.0, 7.},{occAxis}}});
+        registry.add("hTrackPt", "track pT;#it{p}_{T,track} (GeV/#it{c});entries", {HistType::kTHnSparseF, {{100, 0, 100}, {100, 0, 100}, {eseAxis}, {occAxis}}});
+        registry.add("hTrackEta", "track #eta;#eta_{track};entries", {HistType::kTH3F, {{100, 0, 100}, {100, -1.0, 1.0}, {occAxis}}});
+        registry.add("hTrackPhi", "track #phi;#phi_{track};entries", {HistType::kTH3F, {{100, 0, 100}, {80, -1.0, 7.}, {occAxis}}});
         registry.add("hOccupancy", "Occupancy;Occupancy;entries", {HistType::kTH1F, {{occAxis}}});
-        registry.add("hPsiOccupancy", "Occupancy;#Psi_{2};entries", {HistType::kTH3F, {{100,0,100}, {150,-2.5,2.5}, {occAxis}}});
+        registry.add("hPsiOccupancy", "Occupancy;#Psi_{2};entries", {HistType::kTH3F, {{100, 0, 100}, {150, -2.5, 2.5}, {occAxis}}});
         break;
     }
   }
@@ -184,7 +190,7 @@ struct JetSpectraEseTask {
       auto occupancy = collision.trackOccupancyInTimeRange();
       if (occupancy < cfgCutOccupancy->at(0) || occupancy > cfgCutOccupancy->at(1))
         registry.fill(HIST("hEventCounter"), counter++);
-        return;
+      return;
     }
 
     registry.fill(HIST("hEventCounter"), counter++);
@@ -209,10 +215,10 @@ struct JetSpectraEseTask {
   }
   PROCESS_SWITCH(JetSpectraEseTask, processESEDataCharged, "process ese collisions", true);
 
-  void processESEOccupancy( soa::Join<aod::JetCollisions, aod::JCollisionPIs>::iterator const& collision, 
-                            soa::Join<aod::JetTracks, aod::JTrackPIs> const& tracks, 
-                            soa::Join<aod::Tracks, aod::TracksExtra, aod::TracksDCA, aod::TrackSelection> const&,
-                            soa::Join<aod::Collisions, aod::CentFT0Cs, aod::Qvectors, aod::QPercentileFT0Cs> const&)
+  void processESEOccupancy(soa::Join<aod::JetCollisions, aod::JCollisionPIs>::iterator const& collision,
+                           soa::Join<aod::JetTracks, aod::JTrackPIs> const& tracks,
+                           soa::Join<aod::Tracks, aod::TracksExtra, aod::TracksDCA, aod::TrackSelection> const&,
+                           soa::Join<aod::Collisions, aod::CentFT0Cs, aod::Qvectors, aod::QPercentileFT0Cs> const&)
   {
     float count{0.5};
     registry.fill(HIST("hEventCounterOcc"), count++);
@@ -223,8 +229,8 @@ struct JetSpectraEseTask {
     auto occupancy = collision.trackOccupancyInTimeRange();
     registry.fill(HIST("hPsiOccupancy"), orgCol.centFT0C(), vPsi2, occupancy);
     registry.fill(HIST("hOccupancy"), occupancy);
-    
-    if (!jetderiveddatautilities::selectCollision(collision, eventSelection)) 
+
+    if (!jetderiveddatautilities::selectCollision(collision, eventSelection))
       return;
     registry.fill(HIST("hEventCounterOcc"), count++);
 
@@ -232,18 +238,15 @@ struct JetSpectraEseTask {
       if (!jetderiveddatautilities::selectTrack(track, trackSelection))
         continue;
 
-      
-      registry.fill(HIST("hTrackPt"),orgCol.centFT0C(), track.pt(), qPerc[0], occupancy);
+      registry.fill(HIST("hTrackPt"), orgCol.centFT0C(), track.pt(), qPerc[0], occupancy);
       if (track.pt() < cfgOccupancyPtCut->at(0) || track.pt() > cfgOccupancyPtCut->at(1))
         continue;
-      registry.fill(HIST("hTrackEta"),orgCol.centFT0C(), track.eta(), occupancy);
-      registry.fill(HIST("hTrackPhi"),orgCol.centFT0C(), track.phi(), occupancy);
+      registry.fill(HIST("hTrackEta"), orgCol.centFT0C(), track.eta(), occupancy);
+      registry.fill(HIST("hTrackPhi"), orgCol.centFT0C(), track.phi(), occupancy);
     }
-
   }
   PROCESS_SWITCH(JetSpectraEseTask, processESEOccupancy, "process occupancy", false);
 
- 
   void processMCParticleLevel(soa::Filtered<aod::ChargedMCParticleLevelJets>::iterator const& jet)
   {
     registry.fill(HIST("hPartJetPt"), jet.pt());
@@ -301,23 +304,23 @@ struct JetSpectraEseTask {
       return false;
     else
       return true;
-  } 
+  }
   static constexpr const char* cosList[] = {"hCosPsi2AmC", "hCosPsi2AmB", "hCosPsi2BmC"};
   template <bool fill, typename EPCol>
   float procEP(EPCol const& vec)
-  { 
+  {
     constexpr std::array<float, 2> ampCut{1e-8, 0.0};
     auto computeEP = [&ampCut](std::vector<float> vec, auto det) { return vec[2] > ampCut[det] ? 0.5 * std::atan2(vec[1], vec[0]) : 999.; };
     std::map<std::string, float> epMap;
-    
+
     epMap["FT0A"] = computeEP(QVecNoESE<DetID::FT0A, fill>(vec), 0);
-    if constexpr(fill){
+    if constexpr (fill) {
       epMap["FT0C"] = computeEP(QVecNoESE<DetID::FT0C, false>(vec), 0);
       epMap["FV0A"] = computeEP(QVecNoESE<DetID::FV0A, false>(vec), 0);
       epMap["TPCpos"] = computeEP(QVecNoESE<DetID::TPCpos, false>(vec), 1);
       epMap["TPCneg"] = computeEP(QVecNoESE<DetID::TPCneg, false>(vec), 1);
       fillEP(std::make_index_sequence<5>{}, vec, epMap);
-      
+
       auto cosPsi = [](float psiX, float psiY) { return (static_cast<double>(psiX) == 999. || static_cast<double>(psiY) == 999.) ? 999. : std::cos(2.0 * (psiX - psiY)); };
       std::vector<float> epCorrContainer{};
       epCorrContainer.push_back(cosPsi(epMap[cfgEPRefA], epMap[cfgEPRefC]));
@@ -328,46 +331,58 @@ struct JetSpectraEseTask {
     return epMap["FT0A"];
   }
   template <std::size_t... Idx, typename collision>
-  void fillEPCos(const std::index_sequence<Idx...>&, const collision& col, const std::vector<float>& Corr) {
+  void fillEPCos(const std::index_sequence<Idx...>&, const collision& col, const std::vector<float>& Corr)
+  {
     (registry.fill(HIST(cosList[Idx]), col.centFT0C(), Corr[Idx], col.qPERCFT0C()[0]), ...);
   }
   static constexpr const char* epList[] = {"hPsi2FT0A", "hPsi2FV0A", "hPsi2FT0C", "hPsi2TPCpos", "hPsi2TPCneg"};
   template <std::size_t... Idx, typename collision>
-  void fillEP(const std::index_sequence<Idx...>&, const collision& col, const std::map<std::string, float>& epMap) { 
+  void fillEP(const std::index_sequence<Idx...>&, const collision& col, const std::map<std::string, float>& epMap)
+  {
     (registry.fill(HIST(epList[Idx]), col.centFT0C(), epMap.at(std::string(removePrefix(epList[Idx])))), ...);
   }
-  constexpr std::string_view removePrefix(std::string_view str) {
+  constexpr std::string_view removePrefix(std::string_view str)
+  {
     constexpr std::string_view prefix = "hPsi2";
     return str.substr(prefix.size());
   }
 
-  constexpr int DetIDN(const DetID id) {
+  constexpr int DetIDN(const DetID id)
+  {
     switch (id) {
-      case DetID::FT0C: return 0;
-      case DetID::FT0A: return 1;
-      case DetID::FT0M: return 2;
-      case DetID::FV0A: return 3;
-      case DetID::TPCpos: return 4;
-      case DetID::TPCneg: return 5;
-      case DetID::TPCall: return 6;
+      case DetID::FT0C:
+        return 0;
+      case DetID::FT0A:
+        return 1;
+      case DetID::FT0M:
+        return 2;
+      case DetID::FV0A:
+        return 3;
+      case DetID::TPCpos:
+        return 4;
+      case DetID::TPCneg:
+        return 5;
+      case DetID::TPCall:
+        return 6;
     }
     return -1;
   }
 
   template <DetID id, bool fill, typename Col>
-  std::vector<float> QVecNoESE(Col collision) {
+  std::vector<float> QVecNoESE(Col collision)
+  {
     const int nmode = 2;
     int DetId = DetIDN(id);
     int DetInd = DetId * 4 + cfgnTotalSystem * 4 * (nmode - 2);
-    if constexpr(fill) {
-      if (collision.qvecAmp()[DetInd] > 1e-8){
+    if constexpr (fill) {
+      if (collision.qvecAmp()[DetInd] > 1e-8) {
         registry.fill(HIST("hQvecUncorV2"), collision.centFT0C(), collision.qvecRe()[DetInd], collision.qvecIm()[DetInd]);
         registry.fill(HIST("hQvecRectrV2"), collision.centFT0C(), collision.qvecRe()[DetInd + 1], collision.qvecIm()[DetInd + 1]);
         registry.fill(HIST("hQvecTwistV2"), collision.centFT0C(), collision.qvecRe()[DetInd + 2], collision.qvecIm()[DetInd + 2]);
         registry.fill(HIST("hQvecFinalV2"), collision.centFT0C(), collision.qvecRe()[DetInd + 3], collision.qvecIm()[DetInd + 3]);
-        registry.fill(HIST("hEPUncorV2"), collision.centFT0C(), 0.5*std::atan2(collision.qvecIm()[DetInd], collision.qvecRe()[DetInd]));
-        registry.fill(HIST("hEPRectrV2"), collision.centFT0C(), 0.5*std::atan2(collision.qvecIm()[DetInd + 1], collision.qvecRe()[DetInd + 1]));
-        registry.fill(HIST("hEPTwistV2"), collision.centFT0C(), 0.5*std::atan2(collision.qvecIm()[DetInd + 2], collision.qvecRe()[DetInd + 2]));
+        registry.fill(HIST("hEPUncorV2"), collision.centFT0C(), 0.5 * std::atan2(collision.qvecIm()[DetInd], collision.qvecRe()[DetInd]));
+        registry.fill(HIST("hEPRectrV2"), collision.centFT0C(), 0.5 * std::atan2(collision.qvecIm()[DetInd + 1], collision.qvecRe()[DetInd + 1]));
+        registry.fill(HIST("hEPTwistV2"), collision.centFT0C(), 0.5 * std::atan2(collision.qvecIm()[DetInd + 2], collision.qvecRe()[DetInd + 2]));
       }
     }
     std::vector<float> qVec{};
