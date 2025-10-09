@@ -519,7 +519,7 @@ struct LongRangeDihadronCor {
   {
     if (fitType == kFT0C) {
       id = ft0.channelC()[iCh];
-      id = id + ft0IndexA ;
+      id = id + ft0IndexA;
       ampl = ft0.amplitudeC()[iCh];
       registry.fill(HIST("FT0Amp"), id, ampl);
       ampl = ampl / cstFT0RelGain[iCh];
