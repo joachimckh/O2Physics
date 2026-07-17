@@ -1483,7 +1483,7 @@ struct JetSpectraEseTask {
     if constexpr (fillHist)
       registry.fill(HIST("eventQA/hRhoPhiCheck"), 0.5);
     if (cfgRhoPhiPvalCriteria && cDF < 0.01) {
-      const float noBkg= 0.0f;
+      const float noBkg = 0.0f;
       modulationFit->SetParameter(1, noBkg);
       modulationFit->SetParameter(3, noBkg);
       if constexpr (fillHist)
