@@ -1,0 +1,7 @@
+
+#ifndef COMMON_CORE_FFITWEIGHTSLINKDEF_H_
+#define COMMON_CORE_FFITWEIGHTSLINKDEF_H_
+
+#pragma link C++ class FFitWeights + ;
+
+#endif // COMMON_CORE_FFITWEIGHTSLINKDEF_H_
